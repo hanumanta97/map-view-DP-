@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+*.so
+.Python
+db.sqlite3
+media/
+*.log
+*.pot
+*.pyc
+*.pyo
+*.db
+.env
+.venv
+venv/
+.idea/
+.vscode/

@@ -1,0 +1,195 @@
+var arrow_source = new ol.source.TileWMS({
+    url: `${url}/geoserver/DP/wms`,
+    /* url: '/proxy/http://103.121.74.84:8910/geoserver/TUMC_CIMS/wms', */
+    params: { 'LAYERS': 'DP_DATA:Arrow', 'TILED': true },
+    serverType: 'geoserver',
+    sld:'file:///"D:/sample_lyer/DP_Data/style_sld/arrow.sld"'
+});
+
+var arrow_layer = new ol.layer.Tile({
+    source: arrow_source
+});
+
+
+var ALL_CTS_BNDs = new ol.source.TileWMS({
+    url: `${url}/geoserver/DP/wms`,
+    /* url: `/proxy/{url}/geoserver/TUMC_CIMS/wms`, */
+    params: { 'LAYERS': 'DP:ALL_CTS_BNDs', 'TILED': true },
+    serverType: 'geoserver',
+});
+
+var ALL_CTS_BNDs_Layer = new ol.layer.Tile({
+    source: ALL_CTS_BNDs
+});
+
+var Arrow = new ol.source.TileWMS({
+    url: `${url}/geoserver/DP/wms`,
+    /* url: `/proxy/{url}/geoserver/TUMC_CIMS/wms`, */
+    params: { 'LAYERS': 'DP:Arrow', 'TILED': true },
+    serverType: 'geoserver',
+});
+
+var Arrow_Layer = new ol.layer.Tile({
+    source: Arrow
+});
+
+var Building_Footprint_Label = new ol.source.TileWMS({
+    url: `${url}/geoserver/DP/wms`,
+    /* url: `/proxy/{url}/geoserver/TUMC_CIMS/wms`, */
+    params: { 'LAYERS': 'DP:Building_Footprint_Label', 'TILED': true },
+    serverType: 'geoserver',
+});
+
+var Building_Footprint_Label_Layer = new ol.layer.Tile({
+    source: Building_Footprint_Label
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+  // ,
+  // M5_PSP
+  // ,GRIDs_a1
+  // ,MODIFICATION_NO
+  // ,Published_Srvy_Line
+  // ,Congested_Area_Boundary
+  // ,Nala_Line_R1
+  // ,CRZ_2019_R1
+  // ,Modification_Line
+  // ,Modification_Cross_Line
+  // ,ESZ_Boundary
+  // ,Road_Label_R1
+  // ,NH_EW_Label
+  // ,Proposed_Flyover
+  // ,Flyover
+  // ,METROSTATIONS
+  // ,Outer_Road
+  // ,Elevated_Coastal_Road_R1
+  // ,Elevated_40M_Road
+  // ,Transmission_Tower
+  // ,Power_Transmission_Line
+  // ,Metroline
+  // ,Railway_over_Bridge
+  // ,Arrow
+  // ,Subway_Line
+  // ,Corporation_Boundary
+  // ,DP_Boundary_R1
+  // ,Railway
+  // ,MIDC
+  // ,ALL_CTS_BNDs
+  // ,Village_Boundary_R1
+  // ,Gaothan
+  // ,CTS_Boundary_R1
+  // ,Cadastre_Boundary_R1
+  // ,Building_Footprint_Label
+  // ,Building_Footprints
+  // ,MANGROVE_POLYGON
+  // ,DRAFT_RESERVATION_R6_CHANGES
+  // ,MODIFICATION_PLU_R1
+  // ,Creek
+
+
+
+
+
+
+
+Corporation_Boundary_Layer
+,DP_Boundary_R1_Layer
+,Village_Boundary_R1_Layer
+,GRIDs_a1_Layer,
+,MIDC_Layer
+,Nala_Line_R1_Layer
+,Road_Label_R1_Layer
+,NH_EW_Label_Layer
+,Proposed_Flyover_Layer
+,Flyover_Layer
+,METROSTATIONS_Layer
+,Outer_Road_Layer
+,Elevated_Coastal_Road_R1_Layer
+,Elevated_40M_Road_Layer
+,Transmission_Tower_Layer
+,Power_Transmission_Line_Layer
+,Metroline_Layer
+,Railway_over_Bridge_Layer
+,Arrow_Layer
+,Subway_Line_Layer
+,Railway_Layer
+,Building_Footprint_Label_Layer
+,Building_Footprints_Layer
+,Creek_Layer
+,Published_Srvy_Line_Layer
+,Congested_Area_Boundary_Layer
+,ALL_CTS_BNDs_Layer
+,Gaothan_Layer
+,CTS_Boundary_R1_Layer
+,Cadastre_Boundary_R1_Layer
+,CRZ_2019_R1_Layer
+,ESZ_Boundary_Layer
+,MANGROVE_POLYGON_Layer
+,M5_PSP_Layer,
+,MODIFICATION_NO_Layer
+,Modification_Line_Layer
+,Modification_Cross_Line_Layer
+,DRAFT_RESERVATION_R6_CHANGES_Layer
+,MODIFICATION_PLU_R1_Layer
+
+
+
+REVERSE
+
+
+                                      NH_EW_Label_Layer, Flyover_Layer, Outer_Road_Layer, Transmission_Tower_Layer, Power_Transmission_Line_Layer, Metroline_Layer,
+                                                         Railway_over_Bridge_Layer, Arrow_Layer, Subway_Line_Layer, Corporation_Boundary_Layer, DP_Boundary_R1_Layer, Railway_Layer, MIDC_Layer, ALL_CTS_BNDs_Layer,
+                                                         Village_Boundary_R1_Layer, Gaothan_Layer, CTS_Boundary_R1_Layer, Cadastre_Boundary_R1_Layer, Building_Footprints_Layer, Creek_Layer,
+                                                         Nala_Line_R1_Layer, Road_Label_R1_Layer, GRIDs_a1_Layer, Building_Footprint_Label_Layer    
+Nala_Line_R1_Layer 
+,Road_Label_R1_Layer
+,NH_EW_Label_Layer
+,Proposed_Flyover_Layer
+,Flyover_Layer
+,METROSTATIONS_Layer
+,Outer_Road_Layer
+,Elevated_Coastal_Road_R1_Layer
+,Elevated_40M_Road_Layer
+,Transmission_Tower_Layer
+,Power_Transmission_Line_Layer
+,Metroline_Layer
+,Railway_over_Bridge_Layer
+,Arrow_Layer
+,Subway_Line_Layer
+,Railway_Layer
+,Building_Footprint_Label_Layer
+,Building_Footprints_Layer
+,Creek_Layer
+
+
+
+
+Published_Srvy_Line_Layer
+,Congested_Area_Boundary_Layer
+,ALL_CTS_BNDs_Layer
+,Gaothan_Layer
+,CTS_Boundary_R1_Layer
+,Cadastre_Boundary_R1_Layer
+
+
+
+CRZ_2019_R1_Layer
+,ESZ_Boundary_Layer
+,MANGROVE_POLYGON_Layer
+
+
+M5_PSP_Layer
+,MODIFICATION_NO_Layer
+,Modification_Line_Layer
+,Modification_Cross_Line_Layer

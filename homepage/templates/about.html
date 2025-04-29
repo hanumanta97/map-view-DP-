@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenLayers Map with Controls</title>
+  <!-- adding openlayers css -->
+  <link rel="stylesheet" href="https://openlayers.org/en/v4.6.5/css/ol.css" type="text/css">
+  <!-- adding openlayers javascripts for openlayers -->
+  <script src="https://openlayers.org/en/v4.6.5/build/ol.js"></script>
+  <!-- Font Awesome CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <style>
+    #map {
+      width: 100%;
+      height: 500px;
+      position: relative; /* Ensure the map is the reference point for absolute positioning */
+    }
+    .map-control {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px; /* Space between buttons */
+      z-index: 1000; /* Ensure the control buttons are above the map */
+    }
+    .map-control button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background-color: white;
+      border: 1px solid #ddd;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.2s;
+    }
+    .map-control button:hover {
+      background-color: #f0f0f0;
+      transform: scale(1.1);
+    }
+    .map-control button i {
+      font-size: 16px;
+      color: #333;
+    }
+ 
+  </style>
+</head>
+<body>
+  <!-- Map Container -->
+  <div id="map"></div>
+  <!-- Control Buttons -->
+  <div class="map-control">
+    <button id="zoom-in"><i class="fas fa-search-plus"></i></button>
+    <button id="zoom-out"><i class="fas fa-search-minus"></i></button>
+    <button id="search"><i class="fas fa-search"></i></button>
+    <button id="compass"><i class="fas fa-compass"></i></button>
+    <button id="print"><i class="fas fa-print"></i></button>
+  </div>
+  <script>
+    // Initialize the map
+    const map = new ol.Map({
+      target: 'map',
+      layers: [
+        new ol.layer.Tile({
+          source: new ol.source.OSM(),
+        }),
+      ],
+      view: new ol.View({
+        center: ol.proj.fromLonLat([72.9632, 19.2183]), // Center at longitude 0, latitude 0
+        zoom: 2, // Initial zoom level
+        rotation: 0 // Initial rotation angle
+      }),
+    });
+
+    // Variables for interactive rotation
+    let isDragging = false;
+    let lastAngle = 0;
+    let startAngle = 0;
+    let view = map.getView();
+
+    // Prevent the default context menu on right-click for the entire map
+    document.getElementById('map').addEventListener('contextmenu', function (event) {
+      event.preventDefault(); // Prevent the default context menu
+    });
+
+    // Mouse down event (right-click) on the map
+    document.getElementById('map').addEventListener('mousedown', function (event) {
+      if (event.button === 2) { // Right mouse button
+        isDragging = true;
+        const rect = event.target.getBoundingClientRect();
+        startAngle = Math.atan2(event.clientY - rect.top - rect.height / 2, event.clientX - rect.left - rect.width / 2);
+        lastAngle = view.getRotation();
+      }
+    });
+
+    // Mouse move event
+    document.getElementById('map').addEventListener('mousemove', function (event) {
+      if (isDragging) {
+        const rect = event.target.getBoundingClientRect();
+        const currentAngle = Math.atan2(event.clientY - rect.top - rect.height / 2, event.clientX - rect.left - rect.width / 2);
+        const deltaAngle = currentAngle - startAngle;
+        view.setRotation(lastAngle + deltaAngle);
+      }
+    });
+
+    // Mouse up event
+    document.addEventListener('mouseup', function (event) {
+      if (event.button === 2 && isDragging) { // Right mouse button
+        isDragging = false;
+      }
+    });
+
+    // Handle click and right-click on the compass button
+    document.getElementById('compass').addEventListener('click', function (event) {
+      // Left click functionality
+      view.setRotation(0); // Reset rotation to 0 (North-up)
+      alert('Map reset to North');
+    });
+
+    document.getElementById('compass').addEventListener('contextmenu', function (event) {
+      event.preventDefault(); // Prevent default context menu
+      view.setRotation(0); // Reset rotation to 0 (North-up)
+      alert('Map reset to North');
+    });
+
+    // Zoom In button
+    document.getElementById('zoom-in').addEventListener('click', function () {
+      const view = map.getView();
+      view.setZoom(view.getZoom() + 1);
+      alert('Zoomed In');
+    });
+
+    // Zoom Out button
+    document.getElementById('zoom-out').addEventListener('click', function () {
+      const view = map.getView();
+      view.setZoom(view.getZoom() - 1);
+      alert('Zoomed Out');
+    });
+
+    // Search button
+    document.getElementById('search').addEventListener('click', function () {
+      const query = prompt('Enter a location to search:');
+      if (query) {
+        alert('Searching for: ' + query);
+        // Implement search functionality (e.g., use Nominatim or another geocoding service)
+      }
+    });
+
+    // Print button
+    document.getElementById('print').addEventListener('click', function () {
+      alert('Printing map...');
+      window.print(); // Simple print functionality
+    });
+  </script>
+</body>
+</html>

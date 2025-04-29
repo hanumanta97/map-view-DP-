@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Village Search with CQL Filter</title>
+    <!-- Include OpenLayers from CDN -->
+    <script src="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.3.0/build/ol.js"></script>
+    <style>
+        #map {
+            width: 100%;
+            height: 500px;
+            margin-top: 20px;
+        }
+
+        h3 {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h3>Search Village</h3>
+    <select id="villageSelect">
+        <option value="">Select Village</option>
+        <option value="Mira">Mira</option>
+        <option value="Khari">Khari</option>
+        <!-- Add more village options as needed -->
+    </select>
+    <button onclick="searchVillage()">Search Village</button>
+
+    <div id="map"></div>
+
+    <script>
+        // Define your GeoServer URL
+        var geoserverUrl = "http://103.91.186.84:30000";
+
+        // Initialize the map with a basic OpenStreetMap layer
+        var baseLayer = new ol.layer.Tile({
+            source: new ol.source.OSM()
+        });
+
+        var map = new ol.Map({
+            target: 'map',
+            layers: [baseLayer],
+            view: new ol.View({
+                center: ol.proj.fromLonLat([73.8567, 18.5204]), // Center the map around your area
+                zoom: 12
+            })
+        });
+
+        function getCoordinatesFromAddress(address, callback) {
+            // Define the bounding box for Mira-Bhayander
+            var boundingBox = "72.834,19.259,72.908,19.326"; // [southwest lon, southwest lat, northeast lon, northeast lat]
+
+            var url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&bounded=1&viewbox=${boundingBox}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.length > 0) {
+                        var coords = [parseFloat(data[0].lon), parseFloat(data[0].lat)]; // [longitude, latitude]
+                        callback(coords);
+                    } else {
+                        callback(null);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching coordinates:', error);
+                    callback(null);
+                });
+        }
+
+        function searchVillage() {
+            var villageName = document.getElementById('villageSelect').value;
+
+            if (villageName) {
+                // Create WMS layer with the CQL filter based on the selected village name
+                var villageLayer = new ol.layer.Tile({
+                    source: new ol.source.TileWMS({
+                        url: geoserverUrl + "/geoserver/DP/wms",
+                        params: {
+                            'LAYERS': 'DP:Village_Boundary_R1', // Use the correct layer name for your villages
+                            'FORMAT': 'image/png',
+                            'TRANSPARENT': true,
+                            'CQL_FILTER': `Vill_Name='${villageName}'` // CQL filter to filter by village name
+                        },
+                        serverType: 'geoserver',
+                        crossOrigin: 'anonymous'
+                    })
+                });
+
+                // Clear previous layers (except the base map)
+                map.getLayers().forEach(function(layer) {
+                    // if (layer !== baseLayer) {
+                    //     map.removeLayer(layer);
+                    // }
+                });
+
+                // Add the filtered village layer
+                map.addLayer(villageLayer);
+
+                // Fetch the coordinates for the selected village and zoom in
+                getCoordinatesFromAddress(villageName, function(coords) {
+                    if (coords) {
+                        var center = ol.proj.fromLonLat(coords);
+                        map.getView().setCenter(center);
+                        map.getView().setZoom(14);
+                    } else {
+                        alert('Coordinates for this village are not defined.');
+                    }
+                });
+            } else {
+                alert('Please select a village.');
+            }
+        }
+    </script>
+</body>
+
+</html>

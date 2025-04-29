@@ -1,0 +1,811 @@
+{% extends 'newbase.html' %}
+{% load static %}
+{% block revelo %}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+
+
+<link rel="stylesheet" href="../../static/base_style.css">
+<link rel="stylesheet" href="../../static/style_layercontrol_openlayers.css">
+<link rel="stylesheet" href="../../static/arrow.css">
+
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+   <style>
+        #draggable {
+    min-width: 500px;
+    max-height: 400px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background-color:rgb(226 226 226);
+    /* background-color: lightblue; */
+    border: 1px solid #686868;
+    position: absolute;
+    cursor: move;
+    box-sizing: border-box;
+}
+::-webkit-scrollbar {
+    width: 12px; /* Width of the scrollbar */
+    height: 12px; /* Height of the scrollbar for horizontal scrollbars */
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #888; /* Color of the draggable part of the scrollbar */
+    border-radius: 10px; /* Rounded corners for the thumb */
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #555; /* Color of the thumb when hovered */
+}
+
+::-webkit-scrollbar-track {
+    background-color: #f1f1f1; /* Color of the track (part the thumb slides within) */
+    border-radius: 10px; /* Rounded corners for the track */
+}
+
+.carousel-item{
+  max-height: 350px;
+  overflow-y: auto;
+}
+#cls_btn{
+  cursor: default;
+}
+#cls_btn:hover{
+  background-color: #f70b0b;
+}
+table{
+  font-size: small;
+}
+.map-control {
+      position: absolute;
+      bottom: 5%;
+      right: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px; /* Space between buttons */
+    }
+
+    .map-control button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background-color: white;
+      border: 1px solid #ddd;
+      /* border-radius: 50%; */
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.2s;
+    }
+
+    .map-control button:hover {
+      background-color: #f0f0f0;
+      transform: scale(1.1);
+    }
+
+    .map-control button i {
+      font-size: 16px;
+      color: #333;
+    }
+    </style>
+
+<div class="offcanvas offcanvas-start" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1"
+  id="offcanvasScrolling" aria-labelledby="offcanvasScrollingLabel">
+  <div class="offcanvas-header d-flex justify-content-end">
+    <p style="margin-right: 30%; display: none;">TOOL BOX <i class="bi bi-tools"></i></p>
+    <button type="button" class="btn-close" id="close" data-bs-dismiss="offcanvas" aria-label="Close"
+      style="font-size: 20px"></button>
+  </div>
+  <div class="offcanvas-body">
+    
+    <div id="selectElement3" class="selectElement-dashfilter1 bg-body-tertiary" >
+      <div style="display: flex; align-items: center; justify-content: center; background-color: #f0f0f0; padding: 5px;">
+        <span  data-bs-toggle="collapse" data-bs-target="#collapseExample_search"  aria-expanded="false" aria-controls="collapseExample" style="cursor: pointer; margin-right: 10px;">
+          <i class="bi bi-caret-right-fill" id="icon_collaspe_search"></i>
+        </span>
+    
+      <p style="margin: 0; text-align: center; flex: 1;">SEARCH <i class="fa fa-search"></i></p>
+    </div>
+    <div class="collapse" id="collapseExample_search">
+      <hr style="border: 1px solid #d2d1d1; margin: 10px 0;">
+      <div class="panel panel-flat" style="margin: 5px; display: block">
+        
+      
+        <label class="control-label text-semibold" style="display: inline-block">District Name</label>
+        <select name="" id="Districtselect" class="Districtselect js-states form-control" data-placeholder="Select District"
+          style="width: 100%">
+          <option value=""></option>
+          <option value="MBMC" >MBMC</option>
+          <option value="TMC">TMC</option>
+          <option value="KDMC">KDMC</option>
+        </select>
+        
+   
+      <div class="col-md-12 mb-3" style="display: grid">
+        <label class="control-label text-semibold" style="display: inline-block">Village Name</label>
+        <select name="" id="Villageselect" class="Villageselect" data-placeholder="Select Village"
+          style="width: 100%">
+        </select>
+      </div>
+     
+  <div class="row mt-3" style="padding-left: 5px; padding-right: 5px; display: grid">
+    <button id="searchClearAll" type="button" class="btn btn-dark" style="width: 900%">
+      Clear All
+    </button>
+  </div>
+</div>
+      
+      </div>
+    </div>
+   
+    <br>
+    <div id="collapse-main" style=" border: 1px solid #d2d1d1;padding: 5px ; margin-bottom: 15%;">
+
+     <div style="display: flex; align-items: center; justify-content: center; background-color: #f0f0f0; padding: 5px;">
+      <span  data-bs-toggle="collapse" data-bs-target="#collapseExample"  aria-expanded="false" aria-controls="collapseExample" style="cursor: pointer; margin-right: 10px;">
+        <i class="bi bi-caret-right-fill" id="icon_collaspe" onclick="toggleDivisions()"></i>
+      </span>
+  
+    <p style="margin: 0; text-align: center; flex: 1;">LAYERS <i class="bi bi-stack"></i></p>
+  </div>
+  <div class="collapse" id="collapseExample">
+        <hr style="border: 1px solid #d2d1d1; margin: 10px 0;">
+      <div >
+        <div >
+          <label for="layer1"><i class="bi bi-caret-right"></i> </label>
+          <input type="checkbox" id="OpenStreetMaps_Layer" class="layerToggle" name="Layer1">
+          <button id="OpenStreetMaps" type="button" class="collapsible"
+            onclick="toggleDivision(this)">OpenStreetMaps</button>
+        </div>
+      </div>
+      <div >
+        <div >
+          <label for="layer1"><i class="bi bi-caret-right"></i> </label>
+          <input type="checkbox" id="Satellite_Image_Layer" class="layerToggle" name="Layer1">
+          <button id="Satellite_Image" type="button" class="collapsible" onclick="toggleDivision(this)">Satellite
+            Image</button>
+        </div>
+      </div>
+      <div >
+        <div >
+          <label for="layer1"><i class="bi bi-caret-right" id="BOUNDARY_collasp" onclick="toggleDivision_(this,'BOUNDARY')"></i> </label>
+          <input type="checkbox" id="BOUNDARY_LAYER" class="layerToggle" name="Layer1">
+          <button id="BOUNDARY" type="button" class="collapsible" onclick="toggleDivision(this,'BOUNDARY_collasp')">BOUNDARY</button>
+          <div id="collapse-div-BOUNDARY" class="content-layer-collapse">
+          </div>
+        </div>
+      </div>
+      <div >
+        <div >
+          <label for="layer1"><i class="bi bi-caret-right" id="BASEMAP_LINE_icon" onclick="toggleDivision_(this,'BASEMAP_LINE')"></i> </label>
+          <input type="checkbox" id="BASEMAP_LINE_LAYER" class="layerToggle" name="Layer1">
+          <button id="BASEMAP_LINE" type="button" class="collapsible" onclick="toggleDivision(this,'BASEMAP_LINE_icon')">BASEMAP</button>
+          <div id="collapse-div-basemap_line" class="content-layer-collapse">
+            <!-- <p></p>
+            <input type="checkbox" id="layer1" class="layerToggle" name="Layer1"><label for="layer1">SUB LAYER
+              1
+            </label>
+            <p></p>
+            <input type="checkbox" id="layer1" class="layerToggle" name="Layer1"><label for="layer1">SUB LAYER
+              2
+            </label> -->
+          </div>
+        </div>
+      </div>
+      <div >
+        <div >
+          <label for="layer1"><i class="bi bi-caret-right" id="BASEMAP_POLYGON_icon" onclick="toggleDivision_(this,'BASEMAP_POLYGON')"></i> </label>
+          <input type="checkbox" id="BASEMAP_POLYGON_LAYER" class="layerToggle" name="Layer1">
+          <button id="BASEMAP_POLYGON" type="button" class="collapsible" onclick="toggleDivision(this,'BASEMAP_POLYGON_icon')">REVENUE BOUNDARY</button>
+          <div id="collapse-div-basemap_polygon" class="content-layer-collapse">
+            <!-- <p></p>
+            <input type="checkbox" id="layer1" class="layerToggle" name="Layer1"><label for="layer1">SUB LAYER
+              1
+            </label>
+            <p></p>
+            <input type="checkbox" id="layer1" class="layerToggle" name="Layer1"><label for="layer1">SUB LAYER
+              2
+            </label> -->
+          </div>
+        </div>
+      </div>
+      <div >
+        <div >
+          <label for="layer1"><i class="bi bi-caret-right" id="Structure_Footprint_icon" onclick="toggleDivision_(this,'Structure_Footprint')"></i> </label>
+          <input type="checkbox" id="Structure_Footprint_LAYER" class="layerToggle" name="Layer1">
+          <button id="Structure_Footprint" type="button" class="collapsible" onclick="toggleDivision(this,'Structure_Footprint_icon')">CRZ</button>
+          <div id="collapse-div-structure_footprint" class="content-layer-collapse">
+            <!-- <p></p>
+            <input type="checkbox" id="layer1" class="layerToggle" name="Layer1"><label for="layer1">SUB LAYER
+              1
+            </label>
+            <p></p>
+            <input type="checkbox" id="layer1" class="layerToggle" name="Layer1"><label for="layer1">SUB LAYER
+              2
+            </label> -->
+          </div>
+        </div>
+      </div>
+      <div >
+        <div >
+          <label for="layer1"><i class="bi bi-caret-right" id="boundary_icon" onclick="toggleDivision_(this,'boundary')"></i> </label>
+          <input type="checkbox" id="boundary_LAYER" class="layerToggle" name="Layer1">
+          <button id="boundary" type="button" class="collapsible" onclick="toggleDivision(this,'boundary_icon')">Modifications</button>
+          <div id="collapse-div-boundary" class="content-layer-collapse">
+            <!-- <p></p>
+            <input type="checkbox" id="layer1" class="layerToggle" name="Layer1"><label for="layer1">SUB LAYER
+              1
+            </label>
+            <p></p>
+            <input type="checkbox" id="layer1" class="layerToggle" name="Layer1"><label for="layer1">SUB LAYER
+              2
+            </label> -->
+          </div>
+        </div>
+      </div>
+      <div >
+        <div>
+          <label for="layer1"><i class="bi bi-caret-right" id="mis_point_icon" onclick="toggleDivision_(this,'mis_point')"></i> </label>
+          <input type="checkbox" id="mis_point_LAYER" class="layerToggle" name="Layer1">
+          <button id="mis_point" type="button" class="collapsible" onclick="toggleDivision(this,'mis_point_icon')">PLU</button>
+          <div id="collapse-div-PLU" class="content-layer-collapse">
+            <!-- <p></p>
+            <input type="checkbox" id="layer1" class="layerToggle" name="Layer1"><label for="layer1">SUB LAYER
+              1
+            </label>
+            <p></p>
+            <input type="checkbox" id="layer1" class="layerToggle" name="Layer1"><label for="layer1">SUB LAYER
+              2
+            </label> -->
+          </div>
+        </div>
+      </div>
+      <div style="display: none;">
+        <div >
+          <input type="checkbox" id="lidar_LAYER" class="layerToggle" name="Layer1"><label for="layer1">#</label>
+          <button id="lidar" type="button" class="collapsible" onclick="toggleDivision(this)">360 Location View</button>
+        </div>
+      </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+<div id="map_he" style="width: 100%">
+
+  <!-- <div id="map_base"  style="width: 100%; height: 100vh;"></div> -->
+  <div id="map"  ></div>
+  <div class="map-control">
+    <button id="zoom-in"><i class="bi bi-plus"></i></i></button>
+    <button id="zoom-out"><i class="bi bi-dash"></i></button>
+    <button id="search"><i class="bi bi-search"></i></button>
+    <button type="button" class="btn btn-secondary" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Tooltip on left">
+      Tooltip on left
+    </button>
+    <button class="arrow ol-rotate"  id="compass"><i class="bi bi-compass"></i></button>
+    <button id="print"><i class="bi bi-printer"></i></button>
+  </div>
+  <div id="draggable" class="hidden" style="display: none;">
+      
+    <p style="margin: 0; background-color: #f0f0f0; display: flex; justify-content: space-between; align-items: center;">
+      <span style="flex-grow: 1; text-align: center;">SEARCH <i class="fa fa-search"></i></span>
+      <span id="cls_btn" style="padding: 0 10px;  border: 1px solid black;" onclick="document.getElementById('draggable').style.display='none'"> X </span>
+  </p>
+        
+      <div id="carouselExampleCaptions" class="carousel slide">
+        <div class="carousel-indicators"id="show_btn">
+       
+        </div>
+        <div class="carousel-inner" id="cardSlider_">
+          <div class="carousel-item active">
+            <h5 class="card-title">Feature Information</h5>
+            <p class="d-block w-100">Click on any feature to read properties realted to the feature.
+            </p>
+            <div class="carousel-caption d-none d-md-block">
+              <!-- <h5>First slide label</h5>
+              <p>Some representative placeholder content for the first slide.</p> -->
+            </div>
+          </div>
+         
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="prev" style="margin-left: 4%;">
+          <span class="carousel-control-prev-icon" aria-hidden="true" style="background-color:#555"></span>
+          <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="next"  style="margin-right: 4%;">
+          <span class="carousel-control-next-icon" aria-hidden="true" style="background-color:#555"></span>
+          <span class="visually-hidden">Next</span>
+        </button>
+      </div>
+  </div>
+
+  <div class="pane" id="suid_prop_pane" style="text-transform:uppercase;">
+    
+
+    <div class="container">
+      <div class="card-slider" id="cardSlider">
+          <div class="card-wrapper">
+              <div class="card w-100">
+                  <div class="card-body CB">
+                      <h5 class="card-title">Feature Information</h5>
+                      <p class="card-text">Click on any feature to read properties realted to the feature.</p>
+                  </div>
+              </div>
+          </div>
+      </div>
+      <button id="prevButton" class="slider-button"><i class="bi bi-caret-left-square-fill"></i></button>
+      <button id="nextButton" class="slider-button"><i class="bi bi-caret-right-square-fill"></i></button>
+  </div>
+
+  </div>
+  </div>
+  <div class="pane" id="lidar_prop_pane" style="text-transform:uppercase;display: none;">
+    <!-- <h5>360 Images</h5> -->
+    <div id="Lidar_Div">
+    </div>
+  </div>
+  <!-- <div id="info_">&nbsp;</div>
+  <div id="lidarImage" style="height: 500px;width: 500px;"></div>
+</div> -->
+
+</div>
+<button class="btn btn-light" id="toggle-menu" type="button" data-bs-toggle="offcanvas"
+  data-bs-target="#offcanvasScrolling" aria-controls="offcanvasScrolling">
+  <i id="icon" class="bi bi-caret-right" style="margin: 0;"></i>
+</button>
+
+
+
+<!-- <input type="file" onchange="previewFile()" id="sampleInputFile" style="display: none;" /><br />
+
+
+<div id="legendDiv" class="">
+  <fieldset>
+    <legend>
+      <h4 style="margin:0px;font-size: large;">Legend</h4>
+    </legend>
+    <h6 style="padding-bottom: 10px;margin-top: -15px;text-decoration-line: underline;">Boundary</h6>
+    <div id="legendDivList">
+      <div>
+        <label class="legendLabel" for="Municipal">Municipal</label>
+        <div class="legendColorInput" style="background-color: white;height: 25px;width: 50px">
+          <button class="legendButton" style="background-color: black;height: 4px;width: 50px;"></button>
+        </div>
+        <span>
+        </span>
+        <br />
+      </div>
+      <div>
+        <label class="legendLabel" for="Sector">Sector</label>
+        <div class="legendColorInput" style="background-color: white;height: 25px;width: 50px">
+          <button class="legendButton" style="background-color: #04f7e7;height: 4px;width: 50px;"></button>
+        </div>
+        <span>
+        </span>
+        <br />
+      </div>
+      <div>
+        <label class="legendLabel" for="URP">URP</label>
+        <div class="legendColorInput" style="background-color: white;height: 25px;width: 50px">
+          <button class="legendButton" style="background-color: #e006fd;height: 4px;width: 50px;"></button>
+        </div>
+        <span>
+        </span>
+        <br />
+      </div>
+      <div>
+        <label class="legendLabel" for="URC">URC</label>
+        <div class="legendColorInput" style="background-color: white;height: 25px;width: 50px">
+          <button class="legendButton" style="background-color: #fd2104;height: 4px;width: 50px;"></button>
+        </div>
+        <span>
+        </span>
+        <br />
+      </div>
+      <div>
+        <label class="legendLabel" for="Block">Block</label>
+        <div class="legendColorInput" style="background-color: white;height: 25px;width: 50px">
+          <button class="legendButton" style="background-color: #0a91f8;height: 4px;width: 50px;"></button>
+        </div>
+        <span>
+        </span>
+        <br />
+      </div>
+      <div>
+        <label class="legendLabel" for="ABEYANCE"><span>Abeyance/<br>Retained</span></label>
+        <div class="legendColorInput" style="background-color: white;height: 25px;width: 50px">
+          <button class="legendButton" style="background-color: #e4f806;height: 4px;width: 50px;"></button>
+        </div>
+        <span>
+        </span>
+        <br />
+      </div>
+    </div>
+  </fieldset>
+</div> -->
+
+<img class="arrow ol-rotate" id="arrow" src="../../static/north arrow 5.png" height="60px" width="65px"
+  alt="arrow Image" srcset="" >
+  <footer style="position: fixed; bottom: 0; left: 0; width: 100%; background-color: #f8f9fa; text-align: center; padding: 5px;">
+    <span id="coordinates">XY: 0, 0 | Lat/Lon: 0.0000, 0.0000</span>
+  </footer>
+
+
+<script>
+  
+  $(document).ready(function () {
+    $('.js-states').select2({
+                placeholder: "Select District",
+                allowClear: true
+            });
+
+    var selectElement = document.getElementById('Districtselect');
+    selectElement.selectedIndex = -1;
+    window_ = $(window).height();
+    navbar_ = $('#myDiv').height();
+    footer_ = $('#coordinates').height();
+    map_ = $('#map_he').height();
+    map_full = $('#map_he').width();
+    map_only = $('#map').width();
+    footer_height=footer_+15;
+    map_pane = $('#suid_prop_pane').width();
+    let height_map = window_ - navbar_-footer_height;
+    document.getElementById('map_he').style = `height:${height_map}px`
+    const collapsibleElement = document.querySelector('#collapseExample');
+  const iconElement = document.querySelector('#icon_collaspe');
+    const collapsibleElement_search = document.querySelector('#collapseExample_search');
+  const iconElement_search = document.querySelector('#icon_collaspe_search');
+
+  // Event listener to toggle icon based on collapse state
+  $(collapsibleElement).on('show.bs.collapse', () => {
+    iconElement.classList.remove('bi-caret-right-fill');
+    iconElement.classList.add('bi-caret-down-fill');
+  });
+
+  $(collapsibleElement).on('hide.bs.collapse', () => {
+    iconElement.classList.remove('bi-caret-down-fill');
+    iconElement.classList.add('bi-caret-right-fill');
+  });
+  $(collapsibleElement_search).on('show.bs.collapse', () => {
+    iconElement_search.classList.remove('bi-caret-right-fill');
+    iconElement_search.classList.add('bi-caret-down-fill');
+  });
+
+  $(collapsibleElement_search).on('hide.bs.collapse', () => {
+    iconElement_search.classList.remove('bi-caret-down-fill');
+    iconElement_search.classList.add('bi-caret-right-fill');
+  });
+      
+  });
+  
+  document.getElementById("Villageselect").disabled = true;
+ 
+  button_toggle = document.getElementById("toggle-menu");
+  const icon = document.getElementById("icon");
+  const ev = document.getElementById("toggle-menu");
+  let offcanvasScrolling = document.getElementById("offcanvasScrolling");
+  ev.addEventListener("click", function (e) {
+    document.getElementById("Districtselect").focus();
+    const offCanvas = document.getElementsByClassName(".offcanvas");
+    const mainContent = document.getElementById("#map");
+    let width_off = $(".offcanvas").width();
+    let but_width = width_off;
+    //console.log(width_off);
+    if (icon.className === "bi bi-caret-right") {
+      icon.className = "bi bi-caret-left";
+    }
+    button_toggle.style.marginLeft = `${but_width}px`;
+    if (offcanvasScrolling.className === "offcanvas offcanvas-start show hiding") {
+      button_toggle.style.marginLeft = "0";
+      icon.className = "bi bi-caret-right";
+    }
+  });
+
+  document.getElementById("close").addEventListener("click", function () {
+    if (
+      offcanvasScrolling.className === "offcanvas offcanvas-start show hiding"
+    ) {
+      button_toggle.style.marginLeft = "0";
+      icon.className = "bi bi-caret-right";
+    }
+  });
+
+</script>
+
+
+
+
+<script>
+
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        // Does this cookie string begin with the name we want?
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+  $('.Districtselect').select2({
+          placeholder: "Select District",
+          allowClear: true,
+          multiple: true,
+          theme: "classic",
+          maximumSelectionLength: 1,
+          selectionCssClass: 'width:50vw'
+      });
+      $('.Villageselect').select2({
+          placeholder: 'Select Village',
+          multiple: true,
+          theme: "classic",
+          allowClear: true,
+          maximumSelectionLength: 1
+      });
+      $('.Ctsselect').select2({
+          placeholder: 'Select CTS',
+          multiple: true,
+          theme: "classic",
+          allowClear: true,
+          maximumSelectionLength: 1
+      });
+  
+  var $eventSelectRTO = $(".Districtselect");
+  $eventSelectRTO.select2({
+    maximumSelectionLength: 1,
+    placeholder: "Select District",
+  });
+
+  $eventSelectRTO.on("select2:select", function (e) { rtolog("select2:select", e); });
+
+  function rtolog(name, evt) {
+    document.getElementById("Villageselect").disabled = true;
+    selected_rto = evt.params.data.text
+   if(selected_rto=="MBMC"){
+    load_mbmc_layers();
+   }
+   if(selected_rto=="TMC"){
+    load_TMC_layers();
+   }
+   if(selected_rto=="KDMC"){
+    load_kdmc_layers();
+   }
+    let tg_sector = document.getElementById("Villageselect")
+    for (let index = 0; index < tg_sector.options.length; index++) {
+      const element = tg_sector[index];
+      tg_sector.options.remove(element.index)
+    }
+
+    function removeAllOpt(selectElement) {
+      selectElement.options.remove(0);
+    }
+
+    while (tg_sector.options.length >= 1) {
+      removeAllOpt(tg_sector)
+    }
+
+
+    $.ajax({
+      "type": "POST",
+      "url": `/getVillageData`,
+      "dataType": "JSON",
+      "data": { "selected_rto": selected_rto }
+    }).then(function (response) {
+      document.getElementById("Villageselect").disabled = false;
+      gotsectors = response.MISDATA
+      console.log(gotsectors)
+      // gotsectors.sort(function (a, b) { return a - b });
+
+      for (let index = 0; index < gotsectors.length; index++) {
+        const element = gotsectors[index];
+          let newDataX = {
+            id: index,
+            text: element
+          };
+
+          let newOptionX = new Option(newDataX.text, newDataX.id, false, false);
+          $('#Villageselect').append(newOptionX).trigger('change');
+       
+      }
+    })
+  }
+var $eventSelectvillage = $(".Villageselect");
+ 
+  $eventSelectvillage.on("select2:select", function (e) { rtolog_("select2:select", e); });
+
+  function rtolog_(name, evt) {
+    
+    selected_rto = evt.params.data.text
+    searchVillage(selected_rto)
+  }
+
+
+
+
+    // Initialize Select2 for the village dropdown
+    var url = "http://103.91.186.84:30000"
+
+  
+ 
+ 
+
+
+
+  function clearAllPopups() {
+    let popupscollection = document.getElementsByClassName('popupClass')
+    if (popupscollection.length != 0) {
+      for (let e_index = 0; e_index < popupscollection.length; e_index++) {
+        const p_element = popupscollection[e_index];
+        p_element.style.display = 'none'
+      }
+    }
+    else {
+      //console.log('No Element is Present!')
+    }
+  }
+
+
+
+</script>
+
+
+
+<script>
+
+
+
+  var coll = document.getElementsByClassName("collapsible");
+  var ic;
+
+
+  var collapseDiv = document.getElementById('collapse-div')
+ 
+
+
+  function toggleDivision(params,icon_id) {
+    //console.log(params.classList)
+    params.classList.toggle("active");
+    let currDiv = document.getElementById(params.id)
+    //console.log(currDiv)
+    let cont = currDiv.nextElementSibling;
+    //console.log(cont)
+    var tgbtn = document.getElementById('toggleButton')
+    if (cont.style.display === "inline-grid") {
+     document.getElementById(icon_id).className= 'bi bi-caret-right';
+      cont.style.display = "none";
+    }
+    else {
+      cont.style.display = "inline-grid";
+      document.getElementById(icon_id).className= 'bi bi-caret-down';
+      if (params.className == "collapsible active") {
+        // collapseDiv.style = "background-color:lightblue"
+        // document.getElementById('layer1').style = "background-color:lightblue"
+      }
+    }
+  }
+
+
+  function toggleDivision_(params,div_id) {
+   document.getElementById(div_id).click();
+   let currDiv = document.getElementById(params.id)
+   console.log(currDiv)
+   currDiv
+  }
+
+
+
+
+</script>
+
+
+
+<script>
+  const cardSlider = document.getElementById('cardSlider');
+  const cardWrapper = cardSlider.querySelector('.card-wrapper');
+  const nextButton = document.getElementById('nextButton');
+  const prevButton = document.getElementById('prevButton');
+
+  let currentIndex = 0;
+
+  nextButton.addEventListener('click', () => {
+      if (currentIndex < cardWrapper.children.length - 1) {
+          currentIndex++;
+          updateSlider();
+      }
+  });
+
+  prevButton.addEventListener('click', () => {
+      if (currentIndex > 0) {
+          currentIndex--;
+          updateSlider();
+      }
+  });
+
+  function updateSlider() {
+      const offset = -currentIndex * 100; // Slide to show the next card
+      cardWrapper.style.transform = `translateX(${offset}%)`;
+  }
+  $('#searchClearAll').click(function () {
+        $("#Districtselect").select2('val', 'ALL');
+        $("#Villageselect").empty().trigger("change");
+        
+        document.getElementById("Villageselect").disabled = true;
+  });
+
+  document.getElementById('search-button').addEventListener('click', function() {
+    var villageName = document.getElementById('village-name').value;
+    if (villageName) {
+        searchVillage_input(villageName);
+    }
+});
+
+</script>
+<script>
+  const draggable = document.getElementById('draggable');
+  let isDragging = false;
+  let offsetX, offsetY;
+  let posX = 0, posY = 0;  // Store current position
+
+  // document.addEventListener('click', function(e) {
+  //     if (!draggable.contains(e.target)) {
+  //         const rect = draggable.getBoundingClientRect();
+  //         posX = Math.min(e.pageX, window.innerWidth - rect.width);
+  //         posY = Math.min(e.pageY, window.innerHeight - rect.height);
+          
+  //         draggable.style.left = posX + 'px';
+  //         draggable.style.top = posY + 'px';
+  //         draggable.classList.remove('hidden');
+  //     }
+  // });
+  
+
+  draggable.addEventListener('mousedown', function(e) {
+      e.preventDefault();
+      isDragging = true;
+      const rect = draggable.getBoundingClientRect();
+      offsetX = e.clientX - rect.left;
+      offsetY = e.clientY - rect.top;
+
+      // Smooth dragging using requestAnimationFrame
+      function onMouseMove(e) {
+          if (!isDragging) return;
+
+          posX = e.clientX - offsetX;
+          posY = e.clientY - offsetY;
+
+          // Calculate boundaries to keep the div within the viewport
+          const rightLimit = window.innerWidth - draggable.offsetWidth;
+          const bottomLimit = window.innerHeight - draggable.offsetHeight-50;
+
+          posX = Math.max(0, Math.min(posX, rightLimit));
+          posY = Math.max(0, Math.min(posY, bottomLimit));
+
+          // Apply positions using requestAnimationFrame
+          requestAnimationFrame(() => {
+              draggable.style.left = posX + 'px';
+              draggable.style.top = posY + 'px';
+          });
+      }
+
+      function onMouseUp() {
+          isDragging = false;
+          document.removeEventListener('mousemove', onMouseMove);
+          document.removeEventListener('mouseup', onMouseUp);
+      }
+
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', onMouseUp);
+  });
+
+</script>
+<script src="https://code.jquery.com/ui/1.13.1/jquery-ui.min.js"
+  integrity="sha256-eTyxS0rkjpLEo16uXTS0uVCS4815lc40K2iVpWDvdSY=" crossorigin="anonymous"></script>
+
+{% endblock %}

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenLayers Measurement Example</title>
+        <!-- adding openlayers css -->
+        <link rel="stylesheet" href="https://openlayers.org/en/v4.6.5/css/ol.css" type="text/css">
+
+
+
+        <!-- adding openlayers javascripts for openlayers -->
+    
+        <script src="https://openlayers.org/en/v4.6.5/build/ol.js"></script>
+    <style>
+        .map {
+            width: 100%;
+            height: 500px;
+        }
+        .measure-tooltip {
+            position: absolute;
+            background-color: white;
+            padding: 5px;
+            border: 1px solid black;
+            border-radius: 3px;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>OpenLayers Measurement Example</h1>
+    <div id="map" class="map"></div>
+    <script>
+        // Create the map
+        const map = new ol.Map({
+            target: 'map',
+            layers: [
+                new ol.layer.Tile({
+                    source: new ol.source.OSM()
+                })
+            ],
+            view: new ol.View({
+                center: ol.proj.fromLonLat([0, 0]),
+                zoom: 2
+            })
+        });
+
+        // Create a vector source and layer for the measurement features
+        const source = new ol.source.Vector({ wrapX: false });
+        const vector = new ol.layer.Vector({
+            source: source
+        });
+        map.addLayer(vector);
+
+        // Create a draw interaction for polygons
+        const draw = new ol.interaction.Draw({
+            source: source,
+            type: 'Polygon'
+        });
+        map.addInteraction(draw);
+
+        // Create a tooltip overlay to display measurement results
+        const measureTooltip = document.createElement('div');
+        measureTooltip.className = 'measure-tooltip';
+        const overlay = new ol.Overlay({
+            element: measureTooltip,
+            offset: [0, -15],
+            positioning: 'bottom-center'
+        });
+        map.addOverlay(overlay);
+
+        // Function to display measurement results
+        const displayMeasure = (feature) => {
+            const geometry = feature.getGeometry();
+            let output;
+            if (geometry instanceof ol.geom.LineString) {
+                output = `Length: ${ol.sphere.getLength(geometry).toFixed(2)} meters`;
+            } else if (geometry instanceof ol.geom.Polygon) {
+                output = `Area: ${ol.sphere.getArea(geometry).toFixed(2)} square meters`;
+            }
+            measureTooltip.innerHTML = output;
+        };
+
+        // Add event listener for when a feature is added to the source
+        draw.on('drawend', (event) => {
+            const feature = event.feature;
+            displayMeasure(feature);
+            // Optionally clear the source
+            // source.clear();
+        });
+
+        // Show tooltip on mouse move
+        map.on('pointermove', (evt) => {
+            const coordinate = evt.coordinate;
+            overlay.setPosition(coordinate);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,333 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CIMS</title>
+    <link rel="icon" type="image/x-icon" id="log_icon_">
+
+    <!-- external css -->
+<!-- 
+    <link href="..\static\clean.css" rel="stylesheet">
+    <link href="..\static\styles copy.css" rel="stylesheet"> -->
+
+
+    <!-- adding openlayers css -->
+    <link rel="stylesheet" href="https://openlayers.org/en/v4.6.5/css/ol.css" type="text/css">
+
+
+
+    <!-- adding openlayers javascripts for openlayers -->
+
+    <script src="https://openlayers.org/en/v4.6.5/build/ol.js"></script>
+
+
+
+    <!-- adding jquery -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.0/dist/jquery.min.js"
+        integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+    <!-- adding new updated links bootstrap -->
+    <!-- Option 1: Include in HTML -->
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.7.4/proj4.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.7.4/proj4-ol.js"></script>
+    
+
+    <style>
+        body {
+            box-sizing: border-box;
+            overflow-y: auto;
+
+        }
+
+        .body {
+            box-sizing: border-box;
+            margin-left: 5px;
+            ;
+        }
+
+        .selectElement {
+            top: 0vh;
+            margin-bottom: auto;
+            position: sticky;
+            height: fit-content;
+            background-color: rgb(217, 222, 223);
+            border: 2px solid rgb(217, 222, 223);
+            z-index: 10;
+            border-radius: 5px;
+
+        }
+
+        .selectElement-dashfilter {
+            padding: 5px;
+
+            border: 2px solid rgb(217, 222, 223);
+            border-radius: 5px;
+            position: sticky;
+            z-index: 2;
+
+
+        }    
+        .navbar {
+            padding-top: 1px;
+            padding-bottom: 1px;
+            border-radius: 5px;
+        }
+
+        .navbar-brand:hover {
+            transform: scale(1.3);
+        }
+
+
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+
+   
+
+        .profile-pic {
+            display: inline-block;
+            vertical-align: middle;
+            width: 30px;
+            height: 30px;
+            overflow: hidden;
+            border-radius: 50%;
+        }
+
+        .profile-pic img {
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+        }
+
+        .profile-menu .dropdown-menu {
+            right: 0;
+            left: unset;
+        }
+
+        .profile-menu .fa-fw {
+            margin-right: 10px;
+        }
+
+        .toggle-change::after {
+            border-top: 0;
+            border-bottom: 0.3em solid;
+        }
+   
+        .change:hover {
+            transform: scale(1.4);
+        }
+
+        #logout {
+            margin-right: 10px;
+        }
+
+      
+
+
+
+    </style>
+</head>
+
+<body body id="hello">
+    <header class="selectElement " id="myDiv" style="z-index:10">
+        <nav class="navbar navbar-expand-xl bg-body-tertiary   shadow-sm " id="theme">
+            <div class="container-fluid ">
+                <a class="navbar-brand" role="" href="#">
+                    <img src="../../static/tumc.jpg" alt="Avatar Logo"
+                        style="width:100px; height: auto; margin-left: 10px;">
+                </a>
+                <div id="as_rto_base">
+
+                </div>
+                <!-- <li class="nav-item">
+                    <a class="nav-link" href="{% url 'showRevelo' %}">Revelo</a>
+                </li> -->
+                
+                <ul id="sign_profile1" class="navbar-nav ms-auto mb-2 mb-lg-0 profile-menu">
+                    <div id="search-container">
+                        <input type="text" id="village-name" placeholder="Enter village name" style="height: 35px; border-radius: 5px;">
+                        <!-- <button id="search-button">Search</button> -->
+                        <button id="search-button" type="button" class="btn btn-primary"  >
+                            <i class="fa fa-search"></i> search
+                          </button>
+                    </div>
+                    
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop" style="display: none;">
+                        <i class="fa fa-search"></i> search
+                      </button>
+                    <li class="nav-item dropdown" style="display: none;">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <div class="profile-pic">
+                                <img src="../static/user_img.jpg" alt="Profile Picture">
+                            </div>
+                        </a>
+                        <ul class="dropdown-menu" id="theme_color_drop1" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="#" id="user_log1"></a></li>
+                            <li><a class="dropdown-item" href="#" id="user_log_setting1"><i class="bi bi-pen"></i> change password</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="nav-link" id="logout"  matTooltip="Sign Out"
+                                    style="display:none;">
+                                    <i class="bi bi-box-arrow-right"></i><span> Sign Out</span>
+                                </a></li>
+    
+                        </ul>
+                    </li>
+                </ul>
+                
+            </div>
+        </nav>
+    </header>
+ <!-- Button trigger modal -->
+
+  
+  <!-- Modal -->
+  <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog" style="max-width: 300px;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="staticBackdropLabel">Type Or Search</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <div id="selectElement" class="selectElement-dashfilter bg-body-tertiary">
+                <div class="panel panel-flat" style="margin: 5px;display: block;">
+                    <div class="panel-heading">
+                        <div class="row" style="display:block">
+                            <div class="col-md-12 mb-3" style="display:grid;">
+                                <label class="control-label text-semibold ">Ward No.</label>
+                                <select name="" id="rtoListData" class="rtoListData js-states form-control"
+                                    data-placeholder="Select Ward" style="width:100%;">
+                                </select>
+                            </div>
+                            <div class="col-md-12 mb-3" style="display:grid;">
+                                <label class="control-label text-semibold">Village Name
+                                    </label>
+                                <select name="" id="sectorListData" class="sectorListData"
+                                    data-placeholder="Select Village" style="width:100%;">
+                                </select>
+                            </div>
+                            <div class="col-md-12 mb-3" style="display:grid;">
+                                <label class="control-label text-semibold">CTS</label>
+                                <select name="" id="URPListData" class="URPListData" data-placeholder="Select CTS"
+                                    style="width:100%;">
+                                </select>
+                            </div>
+                           
+                        </div>
+                    </div>
+                    <div class="row mt-3" style="padding-left:5px; padding-right:5px; display: grid;">
+                        <button id="searchButton" type="button" class="btn btn-dark" (click)="Search()"
+                            style="width: 900%; background-color:black;"><b><i class="fa fa-search"></i></b> Search</button>
+                    </div>
+                    
+
+                </div>
+            </div>
+        </div>
+       
+      </div>
+    </div>
+  </div>
+    <!-- Button trigger modal -->
+    <button type="button" id="session_expired" class="btn btn-primary" data-bs-toggle="modal"
+        data-bs-target="#staticBackdrop" style="display:none"></button>
+
+    <!-- Modal -->
+    <div class="modal fade " id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+        aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel" style="margin-left: 33%;">Session Expired</h1>
+                    <!-- <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> -->
+                </div>
+                <div class="modal-body" style="color: #020803;">
+                    <b> Your Session is Expired !!
+                        Please Click Login </b>
+                </div>
+                <div class="modal-footer">
+                    <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> -->
+                    <button type="button" class="btn btn-primary" onclick="login_session()">Log In</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </div>
+
+
+
+</body>
+
+<div class="body">
+    {% block content %}</div>{% endblock %}
+
+{% block revelo %}
+
+{% endblock %}
+
+</html>
+<script src="../static/output41.min.js" ></script>
+<script>
+    
+let isDragging_ = false;
+let lastAngle = 0;
+let startAngle = 0;
+let view_ = map.getView();
+
+// Prevent the default context menu on right-click for the entire map
+document.getElementById('map').addEventListener('contextmenu', function (event) {
+  event.preventDefault(); // Prevent the default context menu
+});
+
+// Mouse down event (right-click) on the map
+document.getElementById('map').addEventListener('mousedown', function (event) {
+  if (event.button === 2) { // Right mouse button
+    isDragging_ = true;
+    const rect = event.target.getBoundingClientRect();
+    startAngle = Math.atan2(event.clientY - rect.top - rect.height / 2, event.clientX - rect.left - rect.width / 2);
+    lastAngle = view_.getRotation();
+  }
+});
+
+// Mouse move event
+document.getElementById('map').addEventListener('mousemove', function (event) {
+  if (isDragging_) {
+    const rect = event.target.getBoundingClientRect();
+    const currentAngle = Math.atan2(event.clientY - rect.top - rect.height / 2, event.clientX - rect.left - rect.width / 2);
+    const deltaAngle = currentAngle - startAngle;
+    view_.setRotation(lastAngle + deltaAngle);
+  }
+});
+
+// Mouse up event
+document.addEventListener('mouseup', function (event) {
+  if (event.button === 2 && isDragging_) { // Right mouse button
+    isDragging_ = false;
+  }
+});
+
+// Handle click and right-click on the compass button
+document.getElementById('compass').addEventListener('click', function (event) {
+  // Left click functionality
+  view_.setRotation(0); // Reset rotation to 0 (North-up)\
+});
+
+
+</script>
+

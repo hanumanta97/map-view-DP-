@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenLayers Measurement Example</title>
+        <!-- adding openlayers css -->
+        <link rel="stylesheet" href="https://openlayers.org/en/v4.6.5/css/ol.css" type="text/css">
+
+
+
+        <!-- adding openlayers javascripts for openlayers -->
+    
+        <script src="https://openlayers.org/en/v4.6.5/build/ol.js"></script>
+    <style>
+        #map {
+            width: 100%;
+            height: 100vh;
+        }
+        .ol-control {
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+    <div id="map" class="map"></div>
+    <script>
+        // Create a map with a default OpenStreetMap layer
+        const map = new ol.Map({
+            target: 'map',
+            layers: [
+                new ol.layer.Tile({
+                    source: new ol.source.OSM()
+                })
+            ],
+            view: new ol.View({
+                center: ol.proj.fromLonLat([0, 0]),
+                zoom: 2
+            })
+        });
+
+        // Create a vector source and layer for measurement features
+        const source = new ol.source.Vector();
+        const vector = new ol.layer.Vector({
+            source: source
+        });
+
+        map.addLayer(vector);
+
+        // Create a draw interaction for lines and polygons
+        const draw = new ol.interaction.Draw({
+            source: source,
+            type: 'LineString'
+        });
+
+        map.addInteraction(draw);
+
+        // Create a select interaction to select features
+        const select = new ol.interaction.Select();
+        map.addInteraction(select);
+
+        // Create a snap interaction to snap to existing features
+        const snap = new ol.interaction.Snap({source: source});
+        map.addInteraction(snap);
+
+        // Function to calculate the length of a line
+        function getLength(line) {
+            const coords = line.getCoordinates();
+            let length = 0;
+            let prevX, prevY;
+            const projection = map.getView().getProjection();
+            const coordTransform = ol.proj.getTransform(projection, 'EPSG:4326');
+            let [prevLon, prevLat] = coordTransform(coords[0]);
+
+            for (let i = 1; i < coords.length; i++) {
+                const [lon, lat] = coordTransform(coords[i]);
+                length += Math.sqrt(Math.pow(lon - prevLon, 2) + Math.pow(lat - prevLat, 2));
+                prevLon = lon;
+                prevLat = lat;
+            }
+
+            return length * 111319.9; // Approximate conversion from degrees to meters
+        }
+
+        // Function to calculate the area of a polygon
+        function getArea(polygon) {
+            const coords = polygon.getCoordinates()[0];
+            let area = 0;
+            let x1, y1, x2, y2;
+            for (let i = 0; i < coords.length; i++) {
+                [x1, y1] = ol.proj.toLonLat(coords[i]);
+                [x2, y2] = ol.proj.toLonLat(coords[(i + 1) % coords.length]);
+                area += (x1 * y2 - x2 * y1);
+            }
+            return Math.abs(area / 2);
+        }
+
+        // Create a measure control to display measurements
+        const measureControl = new ol.control.Control({
+            element: document.createElement('div'),
+            render: function() {
+                const feature = select.getFeatures().getArray()[0];
+                if (feature) {
+                    const geometry = feature.getGeometry();
+                    let measure = '';
+                    if (geometry.getType() === 'LineString') {
+                        const length = getLength(geometry);
+                        measure = `Length: ${Math.round(length)} meters`;
+                    } else if (geometry.getType() === 'Polygon') {
+                        const area = getArea(geometry);
+                        measure = `Area: ${Math.round(area)} square meters`;
+                    }
+                    measureControl.element.innerHTML = measure;
+                } else {
+                    measureControl.element.innerHTML = '';
+                }
+            }
+        });
+
+        map.addControl(measureControl);
+
+        // Update draw interaction to switch between line and polygon drawing
+        draw.on('drawend', function(event) {
+            const geometryType = event.feature.getGeometry().getType();
+            if (geometryType === 'Polygon') {
+                draw.setActive(false);
+                draw.setActive(true);
+                draw.setType('LineString');
+            }
+        });
+
+    </script>
+</body>
+</html>

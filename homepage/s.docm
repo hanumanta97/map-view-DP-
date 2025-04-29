@@ -1,0 +1,43 @@
+Sub ReplaceUnderlineWithBlueLine()
+    Dim para As Paragraph
+    Dim wrd As Range
+    Dim shp As Shape
+    Dim startX As Single, endX As Single
+    Dim lineY As Single
+    Dim textWidth As Single
+
+    ' Loop through each paragraph in the document
+    For Each para In ActiveDocument.Paragraphs
+        ' Loop through each word in the paragraph
+        For Each wrd In para.Range.Words
+            If wrd.Font.Underline <> wdUnderlineNone Then
+                ' Remove underline from the word
+                wrd.Font.Underline = wdUnderlineNone
+                
+                ' Calculate the starting position
+                startX = wrd.Information(wdHorizontalPositionRelativeToPage)
+                
+                ' Approximate the width of the text using the font size and number of characters
+                textWidth = wrd.ComputeStatistics(wdStatisticCharacters) * (wrd.Font.Size / 2) ' Adjust as needed
+                
+                ' Calculate the end position based on the text width
+                endX = startX + textWidth
+                
+                ' Calculate the Y position for the line slightly below the text
+                lineY = wrd.Information(wdVerticalPositionRelativeToPage) + wrd.Font.Size * 0.8
+                
+                ' Add a line shape
+                Set shp = ActiveDocument.Shapes.AddLine(startX, lineY, endX, lineY)
+                
+                ' Format the line
+                With shp
+                    .Line.ForeColor.RGB = RGB(0, 0, 255) ' Set the line color to blue
+                    .Line.Weight = 1.5 ' Set the thickness of the line
+                    .LockAnchor = True ' Keep the line anchored to the text position
+                    .RelativeHorizontalPosition = wdRelativeHorizontalPositionPage
+                    .RelativeVerticalPosition = wdRelativeVerticalPositionPage
+                End With
+            End If
+        Next wrd
+    Next para
+End Sub

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Village Search with CQL Filter</title>
+    <!-- Include OpenLayers CSS -->
+    <link rel="stylesheet" href="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.3.0/css/ol.css">
+    <!-- Include OpenLayers from CDN -->
+    <script src="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.3.0/build/ol.js"></script>
+    <!-- Include jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Include proj4js for coordinate conversion -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.7.4/proj4.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.7.4/proj4-ol.js"></script>
+    <style>
+        #map {
+            width: 100%;
+            height: 500px;
+            margin-top: 20px;
+            position: relative;
+        }
+        #coordinates {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            z-index: 1000; /* Ensure it appears above the map */
+        }
+        h3 {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h3>Search Village</h3>
+    <select id="villageSelect" style="width: 300px;">
+        <option value="">Select Village</option>
+        <option value="Murdhe">Murdhe</option>
+        <option value="Varsave">Varsave</option>
+        <option value="Khari">Khari</option>
+        <option value="Penkarpada">Penkarpada</option>
+        <option value="Mira">Mira</option>
+        <option value="Bhayandar">Bhayandar</option>
+        <option value="Kashi">Kashi</option>
+        <option value="Raimurdhe">Raimurdhe</option>
+        <option value="Mahajanwadi">Mahajanwadi</option>
+        <option value="Navghar">Navghar</option>
+        <option value="Ghodbunder">Ghodbunder</option>
+        <option value="Goddev">Goddev</option>
+        <option value="Chene">Chene</option>
+    </select>
+
+    <div id="map">
+        <div id="coordinates"> 0,  0 | Lat/lon: 0 0</div>
+    </div>
+
+    <script>
+        // Define your GeoServer URL
+        var geoserverUrl = "http://103.91.186.84:30000";
+
+        // Define projections
+        proj4.defs("EPSG:32643", "+proj=utm +zone=43 +datum=WGS84 +units=m +no_defs");
+        ol.proj.proj4.register(proj4);
+
+        // Initialize the map with a basic OpenStreetMap layer
+        var baseLayer = new ol.layer.Tile({
+            source: new ol.source.OSM()
+        });
+
+        var map = new ol.Map({
+            target: 'map',
+            layers: [baseLayer],
+            controls: ol.control.defaults({
+                attributionOptions: {
+                    collapsible: false
+                }
+            }).extend([
+                new ol.control.ScaleLine() // Add ScaleLine control
+            ]),
+            view: new ol.View({
+                center: ol.proj.fromLonLat([73.8567, 18.5204]), // Center the map around your area
+                zoom: 12
+            })
+        });
+
+        // Update coordinates display on mouse move
+        map.on('pointermove', function (evt) {
+            var coord = evt.coordinate; // Get the coordinates in the map's projection (default is Web Mercator)
+            var x = coord[0].toFixed(2);
+            var y = coord[1].toFixed(2);
+
+            // Convert Web Mercator to WGS84 for latitude and longitude
+            var latLong = ol.proj.toLonLat(coord);
+            var lat = latLong[1].toFixed(6);
+            var lon = latLong[0].toFixed(6);
+
+            document.getElementById('coordinates').innerText = 'XY: ' + x + '° ' + y + '° | Lat/Lon: ' + lat + ' ' + lon;
+        });
+
+        async function getCoordinatesFromGeoServer(villageName) {
+            const url = `${geoserverUrl}/geoserver/wfs?service=WFS&version=1.0.0&request=GetFeature&typeName=DP:Village_Boundary_R1&outputFormat=application/json&CQL_FILTER=Vill_Name='${encodeURIComponent(villageName)}'`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.features.length > 0) {
+                    const feature = data.features[0];
+                    const coords = feature.geometry.coordinates;
+
+                    // Convert UTM coordinates to Web Mercator (EPSG:3857)
+                    const transformedCoords = coords.map(polygon => polygon.map(ring => ring.map(coord => {
+                        return proj4('EPSG:32643', 'EPSG:3857', coord);
+                    })));
+
+                    return transformedCoords;
+                } else {
+                    return null;
+                }
+            } catch (error) {
+                console.error('Error fetching coordinates from GeoServer:', error);
+                return null;
+            }
+        }
+
+        function searchVillage() {
+            var villageName = $('#villageSelect').val();
+
+            if (villageName) {
+                getCoordinatesFromGeoServer(villageName).then(coords => {
+                    if (coords) {
+                        // Clear previous layers (except the base map)
+                        map.getLayers().forEach(function (layer) {
+                            if (layer !== baseLayer) {
+                                map.removeLayer(layer);
+                            }
+                        });
+
+                        // Create and add the vector layer with the village boundary
+                        var vectorSource = new ol.source.Vector({
+                            features: [new ol.Feature({
+                                geometry: new ol.geom.MultiPolygon(coords)
+                            })]
+                        });
+
+                        var vectorLayer = new ol.layer.Vector({
+                            source: vectorSource,
+                            style: new ol.style.Style({
+                                stroke: new ol.style.Stroke({
+                                    color: '#0000FF',
+                                    width: 2
+                                }),
+                                fill: new ol.style.Fill({
+                                    color: 'rgba(255,0,0,0.1)'
+                                })
+                            })
+                        });
+
+                        map.addLayer(vectorLayer);
+
+                        // Zoom to the village boundary
+                        map.getView().fit(vectorSource.getExtent(), { duration: 1000 });
+                    } else {
+                        alert('Coordinates for this village are not defined.');
+                    }
+                });
+            } else {
+                alert('Please select a village.');
+            }
+        }
+
+        $(document).ready(function () {
+            // Trigger searchVillage when a selection is made
+            $('#villageSelect').on('change', function () {
+                searchVillage();
+            });
+        });
+    </script>
+</body>
+</html>

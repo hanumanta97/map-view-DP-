@@ -1,0 +1,165 @@
+
+/* html, */
+/*body {
+  height: 80%;
+  font-size: 14px;
+  margin: 20px;
+}
+
+body {
+  margin: 20px 30px;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+body .content {
+  margin: 20px 30px;
+}
+ */
+
+/* h6 {
+  padding-top: 100px;
+  padding-bottom: 20%;
+} */
+
+
+
+
+
+#container {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  grid-template-columns: 100%;
+
+  /* fallback height */
+  min-height: 100vh;
+
+  /* new small viewport height for modern browsers */
+  min-height: 100svh;
+}
+
+#container.login {
+  grid-template-rows: auto 0fr max-content;
+}
+
+/*
+body {
+  margin: 20px;
+  background: #0b1621;
+  font-family: "Poppins", sans-serif !important;
+  font-size: 13px;
+}
+*/
+.custom-clustericon {
+  background: var(--cluster-color);
+  color: #fff;
+  border-radius: 100%;
+  font-weight: bold;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+}
+
+.custom-clustericon::before,
+.custom-clustericon::after {
+  content: "";
+  display: block;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+
+  transform: translate(-50%, -50%);
+  top: 50%;
+  left: 50%;
+  background: var(--cluster-color);
+  opacity: 0.2;
+  border-radius: 100%;
+}
+
+.custom-clustericon::before {
+  padding: 7px;
+}
+
+.custom-clustericon::after {
+  padding: 14px;
+}
+
+.custom-clustericon-1 {
+  --cluster-color: #00a2d3;
+}
+
+.custom-clustericon-2 {
+  --cluster-color: #ff9b00;
+}
+
+.custom-clustericon-3 {
+  --cluster-color: #ff6969;
+}
+
+
+
+
+
+.ng-select .ng-select-container,
+.ng-select.ng-select-single .ng-select-container {
+  min-height: 30px;
+  height: 30px;
+}
+
+.dataTables_scrollBody,
+.dataTables_wrapper.no-footer .dataTables_scrollBody {
+  max-height: 300px;
+}
+
+
+
+.logo {
+    height: 80px;
+  width: 250px;
+    margin-top: 40px;
+  margin-left: 50px;
+}
+
+
+.page-header {
+    height: 10px;
+    padding: 5px;
+    background-color: #DC3D3A;
+    color: white;
+    margin: 5%;
+    }
+    
+
+.btn-margin-right
+{
+    margin-right: 1px;
+}
+
+.head-silver {
+    height: 50px;
+    padding: 10px;
+    background-color: #221a1a;
+   
+}
+.bg-red
+{
+    background-color: #DC3D3A;
+    color: white;
+    border-color:#DC3D3A;
+}
+.bg-silver
+{
+    background-color: #A9A9A9;
+  
+    border-color:#A9A9A9;
+    color: black;
+}
+.struct-info{
+ 
+   
+ margin-top: 9.2px;
+ 
+
+  }
+
+
+

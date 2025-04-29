@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenLayers Map with Village Search</title>
+    <link rel="stylesheet" href="https://openlayers.org/en/latest/css/ol.css">
+    <style>
+        #map {
+            width: 100%;
+            height: 400px;
+        }
+        #search-container {
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="search-container">
+        <input type="text" id="village-name" placeholder="Enter village name">
+        <button id="search-button">Search</button>
+    </div>
+    <div id="map"></div>
+    <!-- Include OpenLayers from CDN -->
+    <script src="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.3.0/build/ol.js"></script>
+    <script>
+        // Initialize the map
+        var map = new ol.Map({
+            target: 'map',
+            layers: [
+                new ol.layer.Tile({
+                    source: new ol.source.OSM()
+                })
+            ],
+            view: new ol.View({
+                center: ol.proj.fromLonLat([78.9629, 20.5937]), // Center of Maharashtra
+                zoom: 7
+            })
+        });
+
+        // Function to perform search
+        function searchVillage(villageName) {
+            // Example using a public geocoding API (you can replace this with your preferred geocoding service)
+            var geocodeUrl = `https://nominatim.openstreetmap.org/search?q=${villageName}, Maharashtra&format=json&addressdetails=1`;
+
+            fetch(geocodeUrl)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length > 0) {
+                        var lon = parseFloat(data[0].lon);
+                        var lat = parseFloat(data[0].lat);
+                        var coords = ol.proj.fromLonLat([lon, lat]);
+
+                        // Create a marker
+                        var marker = new ol.Feature({
+                            geometry: new ol.geom.Point(coords)
+                        });
+
+                        var vectorSource = new ol.source.Vector({
+                            features: [marker]
+                        });
+
+                        var markerVectorLayer = new ol.layer.Vector({
+                            source: vectorSource
+                        });
+
+                        map.addLayer(markerVectorLayer);
+
+                        // Set view to the location
+                        map.getView().animate({
+                            center: coords,
+                            duration: 1000,
+                            zoom: 12
+                        });
+                    } else {
+                        alert('Village not found.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        // Add event listener for search button
+        document.getElementById('search-button').addEventListener('click', function() {
+            var villageName = document.getElementById('village-name').value;
+            if (villageName) {
+                searchVillage(villageName);
+            }
+        });
+    </script>
+</body>
+</html>

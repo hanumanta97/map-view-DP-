@@ -1,0 +1,870 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CIMS</title>
+    <link rel="icon" type="image/x-icon" id="log_icon_">
+
+    <!-- external css -->
+
+    <link href="..\static\clean.css" rel="stylesheet">
+    <link href="..\static\styles copy.css" rel="stylesheet">
+
+
+    <!-- adding openlayers css -->
+    <!-- adding openlayers css -->
+    <link rel="stylesheet" href="https://openlayers.org/en/v4.6.5/css/ol.css" type="text/css">
+
+
+
+    <!-- adding openlayers javascripts for openlayers -->
+
+    <script src="https://openlayers.org/en/v4.6.5/build/ol.js"></script>
+
+
+    <!-- Amcharts urls -->
+
+    <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/percent.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/themes/Dataviz.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
+
+
+    <!-- adding jquery -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.0/dist/jquery.min.js"
+        integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+    <!-- adding new updated links bootstrap -->
+    <!-- Option 1: Include in HTML -->
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+
+    <link href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/select/1.7.0/js/dataTables.select.min.js"></script>
+
+
+
+
+    <style>
+        body {
+            box-sizing: border-box;
+
+        }
+
+        .body {
+            box-sizing: border-box;
+            margin-left: 5px;
+            ;
+        }
+
+        #loader {
+            position: fixed;
+            display: none;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(8, 7, 7, 0.36);
+            z-index: 999999999;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        #loader_viewbut {
+            position: fixed;
+            display: none;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(8, 7, 7, 0.36);
+            z-index: 50;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        @media (min-width: 768px) {
+            .navbar-nav>li>a {
+                padding-top: 12.3px;
+                padding-bottom: 12.3px;
+                line-height: 24px;
+            }
+        }
+
+        .selectElement {
+            top: 0vh;
+            margin-bottom: auto;
+            position: sticky;
+            height: fit-content;
+            background-color: rgb(217, 222, 223);
+            border: 2px solid rgb(217, 222, 223);
+            z-index: 10;
+            border-radius: 5px;
+
+        }
+
+        .selectElement-dashfilter {
+            padding: 5px;
+
+            border: 2px solid rgb(217, 222, 223);
+            border-radius: 5px;
+            position: sticky;
+            z-index: 2;
+
+
+        }
+
+        #note {
+            margin-top: 10px;
+            padding: 5px;
+            height: 150px;
+            border: 2px solid rgb(217, 222, 223);
+            border-radius: 5px;
+            position: fixed;
+            z-index: -1;
+
+        }
+
+        .navbar {
+            padding-top: 1px;
+            padding-bottom: 1px;
+            border-radius: 5px;
+        }
+
+        /* .nav-item {
+            color: black;
+        } */
+
+        .nav-link:hover {
+            height: 100%;
+            background-color: #DC3D3A;
+            color: white;
+            text-transform: calc(1.9);
+            margin-left: 2px;
+            margin-right: 2px;
+
+        }
+
+        a:active {
+            background-color: #DC3D3A;
+            color: azure;
+            height: 100%;
+        }
+
+        .nav-link {
+            color: black;
+            font-weight: 500;
+        }
+
+        .navbar-brand:hover {
+            transform: scale(1.3);
+        }
+
+        .navbar-nav .nav-link.active,
+        .navbar-nav .nav-link.visited,
+        .navbar-nav .nav-link.show {
+            background-color: #DC3D3A;
+            color: azure;
+            height: 100%;
+        }
+
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+
+        @media only screen and (max-width: 1200px) {
+            #sign_profile {
+                display: block;
+            }
+
+            #sign_profile1 {
+                display: none;
+            }
+        }
+
+        @media only screen and (min-width: 1200px) {
+            #sign_profile {
+                display: none;
+            }
+
+            #sign_profile1 {
+                display: block;
+            }
+        }
+
+        .profile-pic {
+            display: inline-block;
+            vertical-align: middle;
+            width: 30px;
+            height: 30px;
+            overflow: hidden;
+            border-radius: 50%;
+        }
+
+        .profile-pic img {
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+        }
+
+        .profile-menu .dropdown-menu {
+            right: 0;
+            left: unset;
+        }
+
+        .profile-menu .fa-fw {
+            margin-right: 10px;
+        }
+
+        .toggle-change::after {
+            border-top: 0;
+            border-bottom: 0.3em solid;
+        }
+    </style>
+    <style>
+
+        /* Style tab links */
+        .tablink {
+            background-color: rgba(255, 255, 255, 0.13);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            background-color: #555;
+            margin: 5px;
+            color: white;
+            float: left;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 14px 16px;
+            font-size: 17px;
+            width: 30%;
+        }
+
+        .tablink:hover {
+            background-color: red;
+        }
+
+        /* Style the tab content (and add height:100% for full page content) */
+        .tabcontent {
+            padding: 10px 20px;
+            height: 100%;
+        }
+
+        h1 {
+            color: #020803;
+        }
+
+        .dark {
+            background-color: #222;
+            color: #e6e6e6;
+        }
+
+        #icon_ {
+            margin-right: 15px;
+        }
+
+        .change:hover {
+            transform: scale(1.4);
+        }
+
+        #logout {
+            margin-right: 10px;
+        }
+
+        @media (prefers-color-scheme: dark) {
+
+            body {
+                --text-color: #eee;
+                --bkg-color: #121212;
+            }
+
+            body .select2-container .select2-selection .select2-selection__choice {
+                color: black;
+            }
+
+            body .select2-results__option {
+                color: black;
+            }
+
+            body .bi-eye-fill,
+            .bi-pen {
+                color: black;
+            }
+
+            body.light-theme {
+                --text-color: #222;
+                --bkg-color: #fff;
+            }
+
+            body.light-theme .bi-eye-fill,
+            .bi-pen {
+                color: var(--bkg-color);
+            }
+        }
+
+        /* css for image tab for images */
+        .cont {
+            position: relative;
+            margin-top: 10px;
+            width: 450px;
+            height: 550px;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0);
+            transition: background 0.5s ease;
+        }
+
+        .cont:hover .overlay {
+            display: block;
+            background: rgba(0, 0, 0, .3);
+        }
+
+        .button {
+            position: absolute;
+            width: 500px;
+            left: -30px;
+            top: 180px;
+            text-align: center;
+            opacity: 0;
+            transition: opacity .35s ease;
+        }
+
+        .button a {
+            width: 200px;
+            padding: 12px 48px;
+            text-align: center;
+            background-color: #222;
+            color: rgb(5, 5, 5);
+            border: solid 3px rgb(5, 5, 5);
+            z-index: 1;
+        }
+
+        .cont:hover .button {
+            opacity: 1;
+        }
+
+        /* css ends for image tab for images */
+
+
+        @media only screen and (max-width: 600px) {
+            .tablink {
+                width: 47%;
+            }
+        }
+
+        @media only screen and (max-width: 1200px) {
+            .tablink {
+                width: 31%;
+            }
+        }
+
+        @media only screen and (max-width: 450px) {
+            .tablink {
+                width: 47%;
+            }
+        }
+
+        @media only screen and (max-width: 350px) {
+            .tablink {
+                width: 100%;
+            }
+        }
+
+        */
+      
+        .selectElement {
+            top: 0vh;
+            margin-bottom: auto;
+            position: sticky;
+            z-index: 100000;
+            border-radius: 5px;
+
+        }
+
+        .butn {
+            background-color: #dd4747;
+            color: #e6e6e6;
+            padding: 10px;
+            height: 25px;
+            width: 80px;
+        }
+
+     
+        .thumbnail-container {
+            width: 50%;
+            display: block;
+        }
+
+        /* Style for the thumbnail images */
+        .thumbnail {
+            width: 80px;
+            margin: 1px;
+            cursor: pointer;
+        }
+
+        /* Container for the zoomed-in image */
+        .zoom-container {
+            width: 100%;
+            border: #555;
+            border-width: 0.5em;
+
+        }
+
+        .zoomed-in {
+            width: 100%;
+            transition: transform 0.2s;
+            padding: 10px;
+        }
+
+        #Documents {
+            border: #555;
+        }
+
+        /***********************************************button css for dcuments*****************************/
+        .topleft {
+            top: 8px;
+            left: 16px;
+            font-size: 15px;
+        }
+
+        .topright {
+            top: 8px;
+            right: 16px;
+            font-size: 15px;
+        }
+
+        .toprightL {
+            top: 8px;
+            right: 180px;
+            font-size: 25px;
+            padding: 0px;
+            padding-right: 3px;
+            padding-left: 3px;
+            padding-top: 0px;
+            height: 36px;
+        }
+
+        .toprightR {
+            top: 8px;
+            right: 218px;
+            font-size: 25px;
+            padding: 0px;
+            padding-right: 3px;
+            padding-left: 3px;
+            padding-top: 0px;
+            height: 36px;
+        }
+
+        .toprightRS {
+            top: 8px;
+            right: 255px;
+            font-size: 25px;
+            padding: 0px;
+            padding-right: 3px;
+            padding-left: 3px;
+            padding-top: 0px;
+            height: 36px;
+        }
+
+        .toprightP {
+            top: 8px;
+            right: 292px;
+            font-size: 25px;
+            padding: 0px;
+            padding-right: 3px;
+            padding-left: 6px;
+            padding-top: 0px;
+            height: 36px;
+        }
+
+        .toprightM {
+            top: 8px;
+            right: 332px;
+            font-size: 25px;
+            padding: 0px;
+            padding-right: 3px;
+            padding-left: 6px;
+            padding-top: 0px;
+            height: 36px;
+        }
+
+        /*********************************************loader foe info tab**********************************/
+        @keyframes ldio-0a2bz1kmxdnd-1 {
+            0% {
+                top: 36px;
+                height: 128px
+            }
+
+            50% {
+                top: 60px;
+                height: 80px
+            }
+
+            100% {
+                top: 60px;
+                height: 80px
+            }
+        }
+
+        @keyframes ldio-0a2bz1kmxdnd-2 {
+            0% {
+                top: 41.99999999999999px;
+                height: 116.00000000000001px
+            }
+
+            50% {
+                top: 60px;
+                height: 80px
+            }
+
+            100% {
+                top: 60px;
+                height: 80px
+            }
+        }
+
+        @keyframes ldio-0a2bz1kmxdnd-3 {
+            0% {
+                top: 48px;
+                height: 104px
+            }
+
+            50% {
+                top: 60px;
+                height: 80px
+            }
+
+            100% {
+                top: 60px;
+                height: 80px
+            }
+        }
+
+        #container {
+            width: 480px;
+            height: 600px;
+        }
+
+        @media only screen and (max-width: 600px) {
+            #container {
+                width: 100%;
+            }
+        }
+
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+    </style>
+
+    <style>
+        /******************************Table css*******************************************/
+
+        /* Additional CSS for DataTable styling */
+        #tableContainer {
+            margin: 0 auto;
+        }
+
+        #table {
+            margin: 0 auto;
+        }
+
+        #example th {
+            background-color: #ee3939;
+            text-align: center;
+        }
+
+        #example td {
+            text-align: center;
+        }
+
+        #example {
+            height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+    <style>
+        /********************************canvas css******************************/
+        .flex {
+            display: flex;
+            gap: 5px;
+        }
+
+        .vert {
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .canvas-container {
+            flex-direction: column;
+            padding-left: 10px;
+        }
+
+        #canvas {
+            border: 1px dotted #333;
+            background: #777;
+            border-radius: 5px;
+            cursor: crosshair;
+        }
+
+        .canvas-info {
+            flex-direction: column;
+            font-size: smaller;
+        }
+
+        .canvas-controls {
+            padding: 5px;
+        }
+
+        .canvas-controls button span {
+            display: inline-block;
+            width: 20px;
+        }
+
+        .rotateR {
+            transform: rotate(90deg);
+        }
+
+        .rotateL {
+            transform: rotate(-90deg);
+        }
+
+        .icon_ {
+            width: 24px;
+            height: 24px;
+        }
+
+
+        /*-********************document css*********************/
+
+        .thumbnail-container {
+            width: 50%;
+            display: block;
+        }
+
+        /* Style for the thumbnail images */
+        .thumbnail {
+            width: 80px;
+            /* Adjust the size of the thumbnails */
+            margin: 1px;
+            cursor: pointer;
+        }
+
+        /* Container for the zoomed-in image */
+        .zoom-container {
+            width: 100%;
+            border: #555;
+            border-width: 0.5em;
+
+        }
+
+        .zoomed-in {
+            width: 100%;
+            transition: transform 0.2s;
+            padding: 10px;
+        }
+
+        #Documents {
+            border: #555;
+        }
+
+        /***********************************************button css for dcuments*****************************/
+        #temprary {
+            width: 100%;
+
+        }
+
+        .topleft {
+            top: 8px;
+            left: 16px;
+            font-size: 15px;
+        }
+
+        .topright {
+            top: 8px;
+            right: 16px;
+            font-size: 15px;
+        }
+
+        .toprightL {
+            top: 8px;
+            right: 180px;
+            font-size: 25px;
+            padding: 0px;
+            padding-right: 3px;
+            padding-left: 3px;
+            padding-top: 0px;
+            height: 36px;
+        }
+
+        .toprightR {
+            top: 8px;
+            right: 218px;
+            font-size: 25px;
+            padding: 0px;
+            padding-right: 3px;
+            padding-left: 3px;
+            padding-top: 0px;
+            height: 36px;
+        }
+
+        .toprightRS {
+            top: 8px;
+            right: 255px;
+            font-size: 25px;
+            padding: 0px;
+            padding-right: 3px;
+            padding-left: 3px;
+            padding-top: 0px;
+            height: 36px;
+        }
+
+        .toprightP {
+            top: 8px;
+            right: 292px;
+            font-size: 25px;
+            padding: 0px;
+            padding-right: 3px;
+            padding-left: 6px;
+            padding-top: 0px;
+            height: 36px;
+        }
+
+        .toprightM {
+            top: 8px;
+            right: 332px;
+            font-size: 25px;
+            padding: 0px;
+            padding-right: 3px;
+            padding-left: 6px;
+            padding-top: 0px;
+            height: 36px;
+        }
+    </style>
+</head>
+
+<body body id="hello">
+    <header class="selectElement " id="myDiv" style="z-index:10">
+        <nav class="navbar navbar-expand-xl bg-body-tertiary   shadow-sm " id="theme">
+            <div class="container-fluid ">
+                <a class="navbar-brand" role="" href="#">
+                    <img src="../../static/tumc.jpg" alt="Avatar Logo"
+                        style="width:100px; height: auto; margin-left: 10px;">
+                </a>
+                <div id="as_rto_base">
+
+                </div>
+                
+               
+           
+              
+            </div>
+        </nav>
+    </header>
+    <!-- Vertically centered modal -->
+    <div class="modal-dialog modal-dialog-centered">
+
+    </div>
+    <!-- Button trigger modal -->
+    <button type="button" id="session_expired" class="btn btn-primary" data-bs-toggle="modal"
+        data-bs-target="#staticBackdrop" style="display:none"></button>
+
+    <!-- Modal -->
+    <div class="modal fade " id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+        aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel" style="margin-left: 33%;">Session Expired</h1>
+                </div>
+                <div class="modal-body" style="color: #020803;">
+                    <b> Your Session is Expired !!
+                        Please Click Login </b>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="login_session()">Log In</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </div>
+    <div id="loader">
+        <span class="loader "></span>
+    </div>
+    <div id="loader_viewbut">
+        <span class="loader "></span>
+    </div>
+   
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" id="disputedbtn"
+        style="display: none;">
+    </button>
+    <span id="check_theme" style="display: none;"></span>
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel" style="margin-left: 35%;">Warning</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id='Disputed_msg' style="color: #020803;">
+                    this suid is disputed contact DMC
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="overlay_"
+        style="display: none;position: fixed;top: 0;bottom:0;left: 0;right: 0;width: 100%; height: 100%;background-color: rgba(0, 0, 0, 0.7);z-index: 11;text-align: center;">
+
+        <button id="overlayButton_" class="btn btn-danger" style="align-items: start;">Close Button</button>
+    
+        <div id="overlay-content_">
+        </div>
+
+    </div>
+
+
+   
+
+</body>
+<script src="../static/output41.min.js" ></script>
+<div class="body">
+    {% block content %}</div>{% endblock %}
+
+{% block revelo %}
+
+{% endblock %}
+
+
+
+
+</html>

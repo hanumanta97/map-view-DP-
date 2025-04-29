@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenLayers Example</title>
+    <!-- OpenLayers CSS -->
+    <link rel="stylesheet" href="https://openlayers.org/en/v4.6.5/css/ol.css" type="text/css">
+    <style>
+        #map {
+            width: 100%;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    
+    <!-- OpenLayers JavaScript -->
+    <script src="https://openlayers.org/en/v4.6.5/build/ol.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Define the URL for the vector tiles
+            var geoserverUrl = 'http://103.91.186.84:30000/geoserver/gwc/service/tile';
+
+            // Create the Vector Tile Source
+            var vectorTileSource = new ol.source.VectorTile({
+                format: new ol.format.MVT(),
+                tileUrlFunction: function(tileCoord) {
+                    return geoserverUrl + '/GRIDs_a1/' + tileCoord[0] + '/' + tileCoord[1] + '/' + tileCoord[2] + '.pbf';
+                },
+                projection: 'EPSG:3857'
+            });
+
+            // Create the Vector Tile Layer
+            var vectorTileLayer = new ol.layer.VectorTile({
+                source: vectorTileSource,
+                title: 'GRIDs a1 Vector Tile Layer'
+            });
+
+            // Create the map
+            var map = new ol.Map({
+                target: 'map',
+                layers: [
+                    // Add a base layer (e.g., OpenStreetMap)
+                    new ol.layer.Tile({
+                        source: new ol.source.OSM()
+                    }),
+                    // Add the vector tile layer
+                    vectorTileLayer
+                ],
+                view: new ol.View({
+                    center: ol.proj.fromLonLat([0, 0]), // Change this to your desired center
+                    zoom: 2 // Change this to your desired zoom level
+                })
+            });
+
+            // Optionally, handle resize events
+            window.addEventListener('resize', function() {
+                map.updateSize();
+            });
+        });
+    </script>
+</body>
+</html>
